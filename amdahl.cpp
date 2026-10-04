@@ -35,12 +35,28 @@ long procesar(long x) {
 // el parcial en `salida`. Acumular en una variable local y escribir `salida`
 // una sola vez.
 void trozo(const vector<long> &v, size_t ini, size_t fin, long &salida) {
+  long acc = 0;
+  for(size_t i = ini; i < fin; i++){
+    acc += procesar(v[i]);
+  }
+  salida = acc;
 }
 
 // TODO: repartir [0, n) en k trozos, lanzar un hilo por trozo con `trozo`,
 // unirlos y devolver la suma de los parciales.
 long en_paralelo(const vector<long> &v, int k) {
-  return 0;
+  vector<thread> hilos;
+  vector<long> parciales(k);
+  size_t paso = v.size() / k;
+  for(size_t h = 0; h < k; h++ ) {
+    size_t ini = h * paso;
+    size_t fin = (h == k -1) ? v.size() : ini + paso; 
+    hilos.emplace_back(trozo, cref(v), ini, fin, ref(parciales[h]));
+  }
+  for(auto &h : hilos) h.join();
+  long salida = 0;
+  for(auto p : parciales) salida += p;
+  return salida;
 }
 
 int main() {
